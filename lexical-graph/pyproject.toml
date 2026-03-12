@@ -16,3 +16,49 @@ license = "Apache-2.0"
 
 [tool.hatch.metadata.hooks.requirements_txt]
 files = ["src/graphrag_toolkit/lexical_graph/requirements.txt"]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "pytest-asyncio>=0.21.0",
+    "hypothesis>=6.0.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov=src --cov-report=term-missing"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src"]
+branch = false
+omit = [
+    "*/__init__.py",
+    "*/conftest.py",
+    "*/tests/*",
+]
+
+[tool.coverage.report]
+fail_under = 50
+show_missing = true
+skip_covered = false
+skip_empty = true
+precision = 2
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "def __str__",
+    "if __name__ == .__main__.:",
+    "def main\\(\\)",
+    "@abstractmethod",
+    "@abc.abstractmethod",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
+    "raise AssertionError",
+    "return NotImplemented",
+    "^\\s*pass\\s*$",
+    "^\\s*\\.\\.\\.\\s*$",
+]

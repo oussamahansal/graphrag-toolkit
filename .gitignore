@@ -24,8 +24,15 @@ __pycache__/
 # hypothesis artifacts
 .hypothesis/
 
-# coverage artifact
+# Coverage reports
+htmlcov/
+**/htmlcov/
 .coverage
+**/.coverage
+
+# Hypothesis test cache
+.hypothesis/
+**/.hypothesis/
 
 # kiro config
 .config.kiro

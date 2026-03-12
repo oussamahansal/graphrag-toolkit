@@ -40,9 +40,60 @@ jobs:
       - name: Install dependencies
         run: |
           uv pip install --python .venv/bin/python \
-            pytest hypothesis \
+            pytest \
+            pytest-cov \
+            pytest-mock \
+            pytest-asyncio \
+            hypothesis \
             -r src/graphrag_toolkit/lexical_graph/requirements.txt
 
-      - name: Run unit tests
+      - name: Run unit tests with coverage
         run: |
-          PYTHONPATH=src .venv/bin/python -m pytest tests/ -v --tb=short
+          PYTHONPATH=src .venv/bin/python -m pytest tests/ \
+            --cov=src \
+            --cov-report=term-missing \
+            --cov-report=html:htmlcov \
+            --cov-fail-under=50 \
+            -v --tb=short
+
+      - name: Generate coverage summary
+        if: always()
+        run: |
+          echo "## Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Baseline**: 50% (hard gate)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> **Note**: Coverage % reflects testable functions only. Integration, wrapper, and infrastructure functions are excluded." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Extract overall coverage from pytest output
+          PYTHONPATH=src .venv/bin/python -m pytest tests/ \
+            --cov=src \
+            --cov-report=term \
+            --tb=no -q 2>&1 | tee coverage_output.txt || true
+          
+          # Parse coverage percentage
+          COVERAGE=$(grep "TOTAL" coverage_output.txt | awk '{print $NF}' | sed 's/%//')
+          
+          if [ ! -z "$COVERAGE" ]; then
+            echo "**Overall Coverage**: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+            
+            if (( $(echo "$COVERAGE >= 50" | bc -l) )); then
+              echo "✅ **Status**: PASSING (≥50%)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ **Status**: FAILING (<50%)" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "⚠️ Could not parse coverage percentage" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See full coverage report in artifacts." >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage report
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-main
+          path: lexical-graph/htmlcov/index.html
+          retention-days: 30
