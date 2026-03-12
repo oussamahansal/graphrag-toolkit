@@ -24,6 +24,8 @@ __pycache__/
 # Coverage reports
 htmlcov/
 **/htmlcov/
+
+# coverage artifact
 .coverage
 **/.coverage
 
@@ -33,3 +35,5 @@ htmlcov/
 
 # kiro config
 .config.kiro
+/temp/
+/temp/

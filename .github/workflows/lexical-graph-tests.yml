@@ -45,6 +45,7 @@ jobs:
             pytest-mock \
             pytest-asyncio \
             hypothesis \
+            pytest hypothesis \
             -r src/graphrag_toolkit/lexical_graph/requirements.txt
 
       - name: Run unit tests with coverage
