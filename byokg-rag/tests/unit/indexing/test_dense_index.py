@@ -332,7 +332,6 @@ class TestDenseIndexQueryWithMockLLM:
 class TestDenseIndexMatch:
     """Tests for batch matching functionality."""
     
-    @pytest.mark.skip(reason="")
     def test_dense_index_match_multiple_queries(self):
         """Verify batch matching of multiple queries."""
         mock_embedding = Mock()

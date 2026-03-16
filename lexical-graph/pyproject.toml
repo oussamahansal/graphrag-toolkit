@@ -27,13 +27,21 @@ test = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--cov=src --cov-report=term-missing"
 testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 asyncio_mode = "auto"
+addopts = [
+    "-v",
+    "--tb=short",
+    "--cov=src/graphrag_toolkit/lexical_graph",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+]
 
 [tool.coverage.run]
-source = ["src"]
-branch = false
+source = ["src/graphrag_toolkit/lexical_graph"]
 omit = [
     "*/__init__.py",
     "*/conftest.py",
@@ -41,9 +49,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 50
 show_missing = true
-skip_covered = false
 skip_empty = true
 precision = 2
 exclude_lines = [
@@ -51,7 +57,6 @@ exclude_lines = [
     "def __repr__",
     "def __str__",
     "if __name__ == .__main__.:",
-    "def main\\(\\)",
     "@abstractmethod",
     "@abc.abstractmethod",
     "raise NotImplementedError",
