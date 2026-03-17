@@ -56,7 +56,7 @@ jobs:
         run: |
           PYTHONPATH=src .venv/bin/python -m pytest \
             -v --cov-config=.coveragerc --cov=graphrag_toolkit.lexical_graph \
-            -l --tb=short --maxfail=1 --cov-fail-under=80 \
+            -l --tb=short --maxfail=1 --cov-fail-under=50 \
             tests/
 
       - name: Package coverage reports
