@@ -1,3 +1,6 @@
+# Runs BYOKG-RAG unit tests with coverage on push/PR to main.
+# Tests run across Python 3.10–3.12. Coverage reports are uploaded as
+# artifacts and a PR comment is posted on failure.
 name: BYOKG-RAG Unit Tests
 
 permissions:
