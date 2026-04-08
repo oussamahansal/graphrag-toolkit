@@ -7,7 +7,7 @@ import react from '@astrojs/react';
 // For a fork's project page:               site='https://<user>.github.io',  base='/<repo-name>'
 export default defineConfig({
   site: 'https://oussamahansal.github.io',
-  base: '/graphrag-toolkit-fork1',
+  base: '/graphrag-toolkit',
   integrations: [
     react(),
     starlight({
