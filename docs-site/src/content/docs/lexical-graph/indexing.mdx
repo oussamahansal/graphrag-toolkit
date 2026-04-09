@@ -12,7 +12,7 @@ You can run the extract and build pipelines together, to provide for the continu
 
 The `LexicalGraphIndex` allows you to run the extract and build pipelines together or separately. See the [Using the LexicalGraphIndex to construct a graph](#using-the-lexicalgraphindex-to-construct-a-graph) section below.
 
-Indexing supports [multi-tenancy](multi-tenancy.md), whereby you can store separate lexical graphs in the same backend graph and vector stores.
+Indexing supports [multi-tenancy](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/multi-tenancy.md), whereby you can store separate lexical graphs in the same backend graph and vector stores.
 
 #### Extract
 
@@ -36,9 +36,9 @@ In the build stage, the LlamaIndex chunk nodes emitted from the extract stage ar
 
 ### Using the LexicalGraphIndex to construct a graph
 
-The `LexicalGraphIndex` provides a convenient means of constructing a graph – via either continuous ingest, or separate extract and build stages. When constructing a `LexicalGraphIndex` you must supply a graph store and a vector store (see [Storage Model](./storage-model.md) for more details). In the examples below, the graph store and vector store connection strings are fetched from environment variables.
+The `LexicalGraphIndex` provides a convenient means of constructing a graph – via either continuous ingest, or separate extract and build stages. When constructing a `LexicalGraphIndex` you must supply a graph store and a vector store (see [Storage Model](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/storage-model.md) for more details). In the examples below, the graph store and vector store connection strings are fetched from environment variables.
 
-The `LexicalGraphIndex` constructor has an `extraction_dir` named argument. This is the path to a local directory to which intermediate artefacts (such as [checkpoints](#checkpoints)) will be written. By default, the value of `extraction_dir` is set to the value of `GraphRAGConfig.local_output_dir`, which defaults to `'output'`. For containerized deployments (EKS/Kubernetes), you can configure this via the `LOCAL_OUTPUT_DIR` environment variable or by setting `GraphRAGConfig.local_output_dir` programmatically. See [Configuration](./configuration.md) for more details.
+The `LexicalGraphIndex` constructor has an `extraction_dir` named argument. This is the path to a local directory to which intermediate artefacts (such as [checkpoints](#checkpoints)) will be written. By default, the value of `extraction_dir` is set to the value of `GraphRAGConfig.local_output_dir`, which defaults to `'output'`. For containerized deployments (EKS/Kubernetes), you can configure this via the `LOCAL_OUTPUT_DIR` environment variable or by setting `GraphRAGConfig.local_output_dir` programmatically. See [Configuration](/graphrag-toolkit/lexical-graph/configuration/) for more details.
 
 #### Continous ingest
 
@@ -228,7 +228,7 @@ The `FileBasedChunks` object has the following parameters:
 
 #### Configuring the extract and build stages
 
-You can configure the number of workers and batch sizes for the extract and build stages of the `LexicalGraphIndex` using the `GraphRAGConfig` object. See [Configuration](./configuration.md) for more details on using the configuration object. 
+You can configure the number of workers and batch sizes for the extract and build stages of the `LexicalGraphIndex` using the `GraphRAGConfig` object. See [Configuration](/graphrag-toolkit/lexical-graph/configuration/) for more details on using the configuration object. 
 
 Besides configuring the workers and batch sizes, you can also configure the indexing process with regard to chunking, proposition extraction and entity classification, and graph and vector store contents by passing an instance of `IndexingConfig` to the `LexicalGraphIndex` constructor:
 
@@ -257,7 +257,7 @@ The `IndexingConfig` object has the following parameters:
 | `chunking` | A list of node parsers (e.g. LlamaIndex `SentenceSplitter`) to be used for chunking source documents. Set `chunking` to `None` to skip chunking. | `SentenceSplitter` with `chunk_size=256` and `chunk_overlap=25` |
 | `extraction` | An `ExtractionConfig` object specifying extraction options | `ExtractionConfig` with default values |
 | `build` | A `BuildConfig` object specifying build options | `BuildConfig` with default values |
-| `batch_config` | Batch configuration to be used if performing [batch extraction](./batch-extraction.md). If `batch_config` is `None`, the toolkit will perform chunk-by-chunk extraction. | `None` |
+| `batch_config` | Batch configuration to be used if performing [batch extraction](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/batch-extraction.md). If `batch_config` is `None`, the toolkit will perform chunk-by-chunk extraction. | `None` |
 
 The `ExtractionConfig` object has the following parameters:
 
@@ -269,7 +269,7 @@ The `ExtractionConfig` object has the following parameters:
 | `infer_entity_classifications` | Determines whether to pre-process documents to identify significant domain entity classifications. Supply either `True` or `False`, or an `InferClassificationsConfig` object. When `True`, an `InferClassifications` step runs as a **pre-processor** before the main extraction loop — one extra LLM round-trip per batch, not per document. | `False` |
 | `extract_propositions_prompt_template` | Prompt used to extract propositions from chunks. If `None`, the [default extract propositions template](https://github.com/awslabs/graphrag-toolkit/blob/main/lexical-graph/src/graphrag_toolkit/lexical_graph/indexing/prompts.py#L29-L72) is used. See [Custom prompts](#custom-prompts) below. | `None` |
 | `extract_topics_prompt_template` | Prompt used to extract topics, statements and entities from chunks. If `None`, the [default extract topics template](https://github.com/awslabs/graphrag-toolkit/blob/main/lexical-graph/src/graphrag_toolkit/lexical_graph/indexing/prompts.py#L74-L191) is used. See [Custom prompts](#custom-prompts) below. | `None` |
-| `extraction_llm` | LLM used to perform extraction and infer classifications. Accepts the model id of an Amazon Bedrock model, an Amazon Bedrock [inference profile](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles.html), a JSON string representation of a LlamaIndex `BedrockConverse` instance, or an instance of a LlamaIndex `LLM` object (see the [LLM configuration](./configuration.md#llm-configuration) section for more details). If `None`, the [`GraphRAG.extraction_llm`](./configuration.md#graphragconfig) configuration parameter is used. | `None` |
+| `extraction_llm` | LLM used to perform extraction and infer classifications. Accepts the model id of an Amazon Bedrock model, an Amazon Bedrock [inference profile](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles.html), a JSON string representation of a LlamaIndex `BedrockConverse` instance, or an instance of a LlamaIndex `LLM` object (see the [LLM configuration](/graphrag-toolkit/lexical-graph/configuration/#llm-configuration) section for more details). If `None`, the [`GraphRAG.extraction_llm`](/graphrag-toolkit/lexical-graph/configuration/#graphragconfig) configuration parameter is used. | `None` |
 
 
 The `BuildConfig` object has the following parameters:
@@ -362,7 +362,7 @@ topic: topic
 
 #### Batch extraction
 
-You can use [Amazon Bedrock batch inference](https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference.html) with the extract stage of the indexing process. See [Batch Extraction](./batch-extraction.md) for more details.
+You can use [Amazon Bedrock batch inference](https://docs.aws.amazon.com/bedrock/latest/userguide/batch-inference.html) with the extract stage of the indexing process. See [Batch Extraction](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/batch-extraction.md) for more details.
 
 `BatchConfig` ([`indexing/extract/batch_config.py`](https://github.com/awslabs/graphrag-toolkit/blob/main/lexical-graph/src/graphrag_toolkit/lexical_graph/indexing/extract/batch_config.py)) accepts the following parameters:
 
@@ -381,11 +381,11 @@ You can use [Amazon Bedrock batch inference](https://docs.aws.amazon.com/bedrock
 
 #### Metadata filtering
 
-You can add metadata to source documents on ingest, and then use this metadata to filter documents during the extract and build stages. Source metadata is also used for metadata filtering when querying a lexical graph. See the [Metadata Filtering](./metadata-filtering.md) section for more details.
+You can add metadata to source documents on ingest, and then use this metadata to filter documents during the extract and build stages. Source metadata is also used for metadata filtering when querying a lexical graph. See the [Metadata Filtering](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/metadata-filtering.md) section for more details.
 
 #### Versioned updates
 
-The lexical graphs supports [versioned updates](./versioned-updates.mds). With versioned updates, if you re-ingest a document whose contents and/or metadata have changed since it was last extracted, any old documents will be archived, and the newly ingested document treated as the current version of the source document.
+The lexical graphs supports [versioned updates](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/versioned-updates.md). With versioned updates, if you re-ingest a document whose contents and/or metadata have changed since it was last extracted, any old documents will be archived, and the newly ingested document treated as the current version of the source document.
 
 #### Checkpoints
 

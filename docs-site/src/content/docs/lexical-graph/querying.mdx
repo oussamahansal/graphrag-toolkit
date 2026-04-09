@@ -6,9 +6,9 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 The primary unit of context presented to the LLM is the *statement* — a standalone assertion or proposition extracted from a source chunk. Statements are grouped by topic and source, and that grouping is what the query engine presents to the LLM.
 
-The lexical-graph uses a [traversal-based search](./traversal-based-search.md) strategy that combines similarity search with graph traversal. A [semantic-guided search](./semantic-guided-search.md) approach also exists but is likely to be retired in a future release.
+The lexical-graph uses a [traversal-based search](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/traversal-based-search.md) strategy that combines similarity search with graph traversal. A [semantic-guided search](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/semantic-guided-search.md) approach also exists but is likely to be retired in a future release.
 
-Querying supports [metadata filtering](./metadata-filtering.md) and [multi-tenancy](multi-tenancy.md).
+Querying supports [metadata filtering](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/metadata-filtering.md) and [multi-tenancy](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/multi-tenancy.md).
 
 ### Factory methods
 
@@ -52,7 +52,7 @@ Both factory methods accept `graph_store`, `vector_store`, `tenant_id`, `post_pr
 | `for_traversal_based_search` | `versioning` |
 | `for_semantic_guided_search` | `enable_versioning` |
 
-You can also construct `LexicalGraphQueryEngine` directly, passing `system_prompt`, `user_prompt`, or a `prompt_provider` kwarg. See [Using Custom Prompt Providers](./prompts.md).
+You can also construct `LexicalGraphQueryEngine` directly, passing `system_prompt`, `user_prompt`, or a `prompt_provider` kwarg. See [Using Custom Prompt Providers](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/prompts.md).
 
 ### Context format
 
@@ -127,7 +127,7 @@ deleted = graph_index.delete_sources(source_id='chunk::abc123')
 
 See also:
 
-- [Traversal-Based Search](./traversal-based-search.md)
-- [Configuring and Tuning Traversal-Based Search](./traversal-based-search-configuration.md)
-- [Metadata Filtering](./metadata-filtering.md)
-- [Multi-Tenancy](./multi-tenancy.md)
+- [Traversal-Based Search](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/traversal-based-search.md)
+- [Configuring and Tuning Traversal-Based Search](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/traversal-based-search-configuration.md)
+- [Metadata Filtering](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/metadata-filtering.md)
+- [Multi-Tenancy](https://github.com/awslabs/graphrag-toolkit/blob/main/docs/lexical-graph/multi-tenancy.md)
