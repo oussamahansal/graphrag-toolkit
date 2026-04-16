@@ -1,6 +1,38 @@
 #!/bin/bash
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+get_toml_value() {
+    # Takes three parameters:
+    # - TOML file path ($1)
+    # - section ($2)
+    # - the key ($3)
+    # 
+    # It first gets the section using the get_section function
+    # Then it finds the key within that section
+    # using grep and cut.
+
+    local file="$1"
+    local section="$2"
+    local key="$3"
+
+    get_section() {
+        # Function to get the section from a TOML file
+        # Takes two parameters:
+        # - TOML file path ($1)
+        # - section name ($2)
+        # 
+        # It uses sed to find the section
+        # A section is terminated by a line with [ in pos 0 or the end of file.
+
+        local file="$1"
+        local section="$2"
+
+        sed -n "/^\[$section\]/,/^\[/p" "$file" | sed '$d'
+    }
+        
+    get_section "$file" "$section" | grep "^$key " | cut -d "=" -f2- | tr -d ' "'
+} 
+
 if [[ "$#" -gt 0 ]]; then
 	if [[ "$1" == "--help" ]]; then
 	  echo "Usage: build-tests.sh [options]"
@@ -48,6 +80,7 @@ if [[ "$#" -gt 0 ]]; then
     echo "  --response-llm <Model id or profile name>"
     echo "  --embeddings-model <Embeddings model id>"
     echo "  --embeddings-dimensions <Embeddings dimensions>"
+    echo "  --ssh-cidr <SSH CIDR block (default: auto-detected IP/32, use 0.0.0.0/0 for open access)>"
     echo "  --prev-stack <Previous stack name or ID>"
 		echo "  --delete-on-pass"
 		echo "  --fail-fast"
@@ -58,13 +91,10 @@ fi
 
 source ./.env
 
-MY_IP=$(curl ifconfig.co)
-
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 STACK_SUFFIX=$(date +%s)
 GRAPH_NAME="gr-$STACK_SUFFIX"
 TEST_DESCRIPTION="graphrag-toolkit integration test"
-SSHCIDR="$MY_IP/0"
 TESTS=""
 PREV_STACK_NAME=""
 
@@ -129,6 +159,7 @@ while [[ "$#" -gt 0 ]]; do
         --embeddings-model) EMBEDDINGS_MODEL="$2"; shift ;;
         --embeddings-dimensions) EMBEDDINGS_DIMENSIONS="$2"; shift ;;
 				--toolkit-dir) GRAPHRAG_TOOLKIT_DIR="$2"; shift ;;
+        --ssh-cidr) SSHCIDR="$2"; shift ;;
         --prev-stack) PREV_STACK_NAME="$2"; shift ;;
 				--delete-on-pass) DELETE_ON_PASS=True ;;
 				--fail-fast) FAIL_FAST=True ;;
@@ -137,6 +168,17 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
+
+if [[ -z "$SSHCIDR" ]]; then
+  echo "Auto-detecting public IPv4 address..."
+  MY_IP=$(curl -4 -s --max-time 10 ifconfig.co)
+  if [[ -z "$MY_IP" ]]; then
+    echo "ERROR: Failed to auto-detect public IPv4 address. Please specify --ssh-cidr manually."
+    exit 1
+  fi
+  SSHCIDR="$MY_IP/32"
+  echo "Detected IP: $MY_IP — SSH will be restricted to $SSHCIDR"
+fi
 
 S3_PREFIX="graphrag-toolkit-tests/$GRAPH_NAME"
 S3_URL_ROOT="https://$BUCKET_NAME.s3.amazonaws.com/$S3_PREFIX"
@@ -177,17 +219,26 @@ mkdir target
 
 pushd temp
 
+toolkit_version=$(get_toml_value "$GRAPHRAG_TOOLKIT_DIR/lexical-graph/pyproject.toml" "project" "version")
+current_timestamp=$(date +%s000)
+
 mkdir -p graphrag/assets/packages
 mkdir graphrag-toolkit
 mkdir lexical-graph-examples
 
-cp -r $GRAPHRAG_TOOLKIT_DIR/lexical-graph/src/* graphrag-toolkit
+if [[ -z "$LEXICAL_GRAPH_INSTALL_URI" ]]; then
+    # Only copy source code to test notebook if install URI not supplied
+	cp -r $GRAPHRAG_TOOLKIT_DIR/lexical-graph/src/* graphrag-toolkit
+fi
+
 cp -r $GRAPHRAG_TOOLKIT_DIR/lexical-graph-contrib/* graphrag-toolkit
 cp -r $GRAPHRAG_TOOLKIT_DIR/byokg-rag/src/* graphrag-toolkit
 cp -r $GRAPHRAG_TOOLKIT_DIR/examples/lexical-graph/notebooks/* lexical-graph-examples
 cp -r $GRAPHRAG_TOOLKIT_DIR/examples/byokg-rag/* lexical-graph-examples
 cp -r ./../test-scripts/* lexical-graph-examples
 cp -r ./../source-data/* lexical-graph-examples
+
+echo "__version__ = '$toolkit_version.$current_timestamp'" >> ./graphrag-toolkit/graphrag_toolkit/lexical_graph/_version.py
 
 echo "export GRAPHRAG_TOOLKIT_S3_URI=$GRAPHRAG_TOOLKIT_S3_URI" >> lexical-graph-examples/.env.testing
 echo "export S3_RESULTS_BUCKET=$S3_RESULTS_BUCKET" >> lexical-graph-examples/.env.testing
