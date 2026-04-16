@@ -6,7 +6,7 @@ import react from '@astrojs/react';
 // For the upstream awslabs project page:  site='https://awslabs.github.io', base='/graphrag-toolkit'
 // For a fork's project page:               site='https://<user>.github.io',  base='/<repo-name>'
 export default defineConfig({
-  site: 'https://awslabs.github.io',
+  site: 'https://oussamahansal.github.io',
   base: '/graphrag-toolkit',
   integrations: [
     react(),
